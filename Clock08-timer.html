@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>D3 Clock</title>
+	<script src="d3.3.5.5.min.js"></script>
+<style>
+    .axis path,
+    .axis line{
+        fill: none;
+        stroke: black;
+        shape-rendering: crispEdges;
+    }
+
+    .axis text {
+        font-family: sans-serif;
+        font-size: 11px;
+    }
+
+
+
+    .text {
+        fill: white;
+        text-anchor: middle;
+    }
+    body{
+        background-color: #FFF;
+        margin: 200px;
+    }
+</style>
+</head>
+<body>
+	<script type="text/javascript">
+		
+        //获取时间
+        var myDate=new Date();
+        var hour = myDate.getHours();
+        var minutes = myDate.getMinutes();
+        var sec = myDate.getSeconds();
+        var tik = myDate.getTime() % 1000;
+
+        function getT(){
+			//获取时间
+			var myDate=new Date();
+			var hour = myDate.getHours();
+			var minutes = myDate.getMinutes();
+			var sec = myDate.getSeconds();
+			var tik = myDate.getTime() % 1000;
+
+			hours = hour < 10 ? "0" + hour : hour;
+			min = minutes < 10 ? "0" + minutes : minutes;
+			seconds = sec < 10 ? "0" + sec : sec;          
+			return hours+":" + min +":" + seconds;
+		}
+
+        //画布大小
+        var width = 800;
+        var height = 600;
+
+        //在 body 里添加一个 SVG 画布   
+        var svg = d3.select("body")
+        .append("svg")
+        .attr("width", width)
+        .attr("height", height);
+
+        //画布周边的空白
+        var padding = {left:30, right:30, top:20, bottom:20};
+
+
+
+
+	</script>
+
+	<script type="text/javascript">
+		
+
+        (function(){
+  var EN = "#4F94CD";
+  var DIS = "#E0EEEE";
+  //var DIS = d3.hsl(EN).brighter(2);
+
+  var w = width / 40;
+  var h = w * 2;
+
+
+  //数字格子
+  var paths = [
+    [
+      [0, w * (1 / 4)],
+      [0, w * (5 / 4) + h],
+      [w / 2, w * (7 / 4) + h],
+      [w, w * (5 / 4) + h],
+      [w, w * (5 / 4)]
+    ],
+    [
+      [0, w * (11 / 4) + h],
+      [0, w * (15 / 4) + (h * 2)],
+      [w, w * (11 / 4) + (h * 2)],
+      [w, w * (11 / 4) + h],
+      [w / 2, w * (9 / 4) + h]
+    ],
+    [
+      [0, 0],
+      [w, w],
+      [w + h, w],
+      [w * 2 + h, 0]
+    ],
+    [
+      [w, w * (6 / 4) + h],
+      [w / 2, w * (8 / 4) + h],
+      [w, w * (10 / 4) + h],
+      [w + h, w * (10 / 4) + h],
+      [w + h + (w / 2), w * (8 / 4) + h],
+      [w + h, w * (6 / 4) + h]
+    ],
+    [
+      [w, w * (12 / 4) + (h * 2)],
+      [0, w * (16 / 4) + (h * 2)],
+      [w * 2 + h, w * (16 / 4) + (h * 2)],
+      [w + h, w * (12 / 4) + (h * 2)]
+    ],
+    [
+      [w + h, w * (5 / 4)],
+      [w + h, w * (5 / 4) + h],
+      [w + h + (w / 2), w * (7 / 4) + h],
+      [w * 2 + h, w * (5 / 4) + h],
+      [w * 2 + h, w * (5 / 4)],
+      [w * 2 + h, w * (1 / 4)]
+    ],
+    [
+      [w + h, w * (11 / 4) + h],
+      [w + h, w * (11 / 4) + (h * 2)],
+      [w * 2 + h, w * (15 / 4) + (h * 2)],
+      [w * 2 + h,w * (11 / 4) + h],
+      [w + h + (w / 2), w * (9 / 4) + h]
+    ]
+  ];
+  // 数字编码
+  var bits = [
+    parseInt("1110111", 2),
+    parseInt("1100000", 2),
+    parseInt("0111110", 2),
+    parseInt("1111100", 2),
+    parseInt("1101001", 2),
+    parseInt("1011101", 2),
+    parseInt("1011111", 2),
+    parseInt("1100101", 2),
+    parseInt("1111111", 2),
+    parseInt("1111101", 2)
+  ];
+
+  function left(digits, colons){
+    return (digits || 0) * (w * (9 / 4) + h) + (colons || 0) * (w * (5 / 4));
+  }
+
+
+  //数字
+  function createDigit(pos){
+    pos = pos || 0;
+    svg
+    .append("g")
+    .attr("class", "digit")
+    .selectAll("polygon")
+    .data(paths)
+    .enter()
+    .append("polygon")
+    .attr("points", function(d){
+      return d.map(function(a){
+        var b = a.concat();
+        b[0] += pos;
+        return b.join(",");
+      }).join(" ");
+    })
+    .style("fill", EN);
+  }
+
+
+  function createColon(pos){
+    var axis = [
+      {x: pos, y: w * (3 / 4) + (h /2)},
+      {x: pos, y: w * (13 / 4) + h}
+    ];
+    svg
+    .append("g")
+    .selectAll("rect")
+    .data(axis)
+    .enter()
+    .append("rect")
+    .attr({
+      x: function(d){ return d.x; },
+      y: function(d){ return d.y; },
+      width: w,
+      height: w
+    })
+    .style({
+      fill: EN
+    });
+  }
+
+  //更新
+  function updateDigit(index, num){
+    var bit = bits[num];
+    d3.select(
+      svg.selectAll("g.digit")[0][index]
+    )
+    .selectAll("polygon")
+    .each(function(d, i){
+      d3.select(this).style("fill", (bit & 1 << i) ? EN : DIS);
+    });
+  }
+
+  createDigit();
+  createDigit(left(1));
+  createColon(left(2));
+  createDigit(left(2, 1));
+  createDigit(left(3, 1));
+  createColon(left(4, 1));
+  createDigit(left(4, 2));
+  createDigit(left(5, 2));
+  //格式化数字，补零
+  var f = function(n){
+    return n > 9 ? "" + n : "0" + n;
+  };
+  (function loop(){
+    var d = new Date;
+    var h = f(d.getHours());
+    var m = f(d.getMinutes());
+    var s = f(d.getSeconds());
+    [h[0], h[1], m[0], m[1], s[0], s[1]].forEach(function(n, i){
+      updateDigit(i, n);
+    });
+    //另一种循环调用
+    setTimeout(loop, 1000);
+  })();
+
+})();
+		
+	</script>
+</body>
+</html>

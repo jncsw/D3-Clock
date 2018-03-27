@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>D3 Clock</title>
+	<script src="d3.3.5.5.min.js"></script>
+<style>
+    .axis path,
+    .axis line{
+        fill: none;
+        stroke: black;
+        shape-rendering: crispEdges;
+    }
+
+    .axis text {
+        font-family: sans-serif;
+        font-size: 11px;
+    }
+
+
+
+
+</style>
+</head>
+<body>
+	<script type="text/javascript">
+		
+        //获取时间
+        var myDate=new Date();
+        var hour = myDate.getHours();
+        var minutes = myDate.getMinutes();
+        var sec = myDate.getSeconds();
+        var tik = myDate.getTime() % 1000;
+
+        function getT(){
+		 //获取时间
+                myDate=new Date();
+                hour = myDate.getHours();
+                minutes = myDate.getMinutes();
+                sec = myDate.getSeconds();
+                tik = myDate.getTime() % 1000;
+
+                hours = hour < 10 ? "0" + hour : hour;
+                min = minutes < 10 ? "0" + minutes : minutes;
+                seconds = sec < 10 ? "0" + sec : sec;          
+                return hours+":" + min +":" + seconds;
+	   }
+
+        function getHour(){
+         //获取时间
+                myDate=new Date();
+                hour = myDate.getHours();
+                return hour < 10 ? "0" + hour : hour;
+       }
+
+        function getMinute(){
+         //获取时间
+                myDate=new Date();
+                minutes = myDate.getMinutes();
+                return min = minutes < 10 ? "0" + minutes : minutes;
+                
+       }
+
+        function getSec(){
+         //获取时间
+                myDate=new Date();
+                sec = myDate.getSeconds();
+                return sec < 10 ? "0" + sec : sec;          
+                
+       }
+
+        //画布大小
+        var width = 400;
+        var height = 800;
+
+        //在 body 里添加一个 SVG 画布   
+        var svg = d3.select("body")
+        .append("svg")
+        .attr("width", width + 100)
+        .attr("height", height + 100);
+
+        //画布周边的空白
+        var padding = {left:30, right:30, top:20, bottom:20};
+
+        //矩形
+        var rectHeight = 40;  
+		var detwid = 20;
+		var rectdata = [1,1,1];
+        svg.append("g").attr("id","g1").selectAll("rect")
+        .data(rectdata)
+        .enter()
+        .append("rect")
+        .attr("x",20)
+        .attr("y",function(d,i){
+             return i * rectHeight+10;
+        })
+        .attr("width",width-detwid)
+        .attr("height",rectHeight-5)
+        .attr("fill","none")
+        .attr("stroke","steelblue")
+        .attr("stroke-width","3px")
+        ;
+
+
+        var filldata = [hour,minutes,sec];
+
+        var linear = d3.scale.linear()
+        .domain([0, 60])
+        .range([0, width-detwid]);
+        var linearhours = d3.scale.linear()
+        .domain([0, 24])
+        .range([0, width-detwid]);
+
+        var update = svg.append("g").attr("id","g2").selectAll("rect")
+        .data(filldata);
+        var enter = update.enter();
+        enter
+        .append("rect")
+        .attr("x",20)
+        .attr("y",function(d,i){
+             return i * rectHeight+10;
+        })
+        .attr("width",function(d){return linear(d);})     
+        .attr("height",rectHeight-5)
+        .attr("fill","steelblue")
+        .attr("stroke","black")
+        .attr("stroke-width","2px");
+        
+		var text  =svg.select("#g2").selectAll("text").data(filldata).enter().append("text")
+        .attr("class", "text")   
+        .attr("fill",(function(d){return (linear(d)<width-40-40)?"black":"white";}))
+        .attr("x",function(d){return (linear(d)<width-40-40)?linear(d)+40:linear(d)-40;})
+        .attr("y",function(d,i){
+            //console.log(i);
+             return i * rectHeight+10+24;
+        })
+        .text(function(d,i){if(i==0)return getHour()+"时";else if(i==1) return getMinute()+"分";else return getSec()+"秒"});
+       
+        function updateCLK(){
+            var myDate=new Date();
+            hour = myDate.getHours();
+            minutes = myDate.getMinutes();
+            sec = myDate.getSeconds();
+            filldata = [hour,minutes,sec];
+            //console.log(sec);
+            
+            update
+            .data(filldata)
+            .transition()
+            .ease("bounce")
+            .duration(400)
+            .attr("width",(function(d){return linear(d);}))
+
+            text.data(filldata)
+            .attr("x",function(d){return (linear(d)<width-40-40)?linear(d)+40:linear(d)-40;})
+            .attr("y",function(d,i){
+                //console.log(i);
+                 return i * rectHeight+10+24;
+            })
+            .text(function(d,i){if(i==0)return getHour()+"时";else if(i==1) return getMinute()+"分";else return getSec()+"秒"})
+            .attr("fill",(function(d){return (linear(d)<width-40-40)?"black":"white";}))
+        }
+
+
+        updateCLK();
+        setInterval(updateCLK,1000);
+	</script>
+</body>
+</html>
